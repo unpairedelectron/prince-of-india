@@ -44,6 +44,7 @@ var terrain_speed_mult := 1.0   ## set by water zones (streams slow Chetak)
 var auto_dir := 0               ## cinematic control: -1/0/1 overrides input
 var auto_speed := 0.0
 var resting := false
+var horse_name := "Chetak"
 
 @onready var rig: HorseRig = $Rig
 @onready var mount_zone: Area2D = $MountZone
@@ -65,7 +66,7 @@ func _ready() -> void:
 # ---------------------------------------------------------- interaction API
 
 func get_prompt() -> String:
-	return "Mount Chetak"
+	return "Mount " + horse_name
 
 
 func can_interact(p: Node) -> bool:

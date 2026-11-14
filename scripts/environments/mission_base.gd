@@ -26,6 +26,8 @@ var start_objective := ""
 var outro_story: Array = []
 var next_scene := ""
 var next_mission := ""
+var faction := {}             ## Campaigns.FACTIONS entry: recolours every soldier (empty = Mewar pack art)
+var tier := 1.0               ## difficulty: scales enemy health, damage and tempo
 
 # ---- runtime
 var C: Dictionary
@@ -47,7 +49,10 @@ var _screen_layers: Array = []
 
 
 func _ready() -> void:
-	C = layout.get_script_constant_map()
+	C = _layout_map()
+	Soldier.faction = faction
+	if next_mission == "" and next_scene == "":
+		next_mission = Campaigns.next_level(mission_id)
 	_build_sky()
 	for l in parallax:
 		_layer(l[0], l[1], l[2], l[3], l[4], l[5] if l.size() > 5 else Color.WHITE)
@@ -68,6 +73,9 @@ func _ready() -> void:
 
 
 # ================================================================ hooks
+
+func _layout_map() -> Dictionary:
+	return layout.get_script_constant_map()
 
 func _build_mission() -> void:
 	pass
@@ -258,10 +266,13 @@ func _build_actors() -> void:
 		horse.facing = -1
 		add_child(horse)
 		horse.collision_mask = 1 | 16
-		horse.stumbled.connect(func(): _hint_once("stumble", "Chetak balks when he strikes an obstacle. Leap a little earlier - or stay low under branches."))
+		horse.stumbled.connect(func(): _hint_once("stumble", "%s balks at obstacles. Leap a little earlier - or stay low under branches." % horse.horse_name))
 	player = PLAYER_SCENE.instantiate()
 	player.position = checkpoints[0].position
 	add_child(player)
+	var hero := Campaigns.hero_of(mission_id)
+	if hero != "":
+		player.apply_hero(Campaigns.HEROES[hero])
 	player.defeated.connect(_on_player_defeated)
 	player.mounted_changed.connect(_on_mounted_changed)
 	camera = CameraRig.new()
@@ -284,6 +295,8 @@ func spawn_soldier(pos: Vector2, archetype := "sword", team := "imperial", overr
 	if overrides.has("max_health"):
 		s.health.max_health = overrides.max_health
 		s.health.current = overrides.max_health
+	if team == "imperial":
+		s.apply_tier(tier, not overrides.has("max_health"))
 	return s
 
 
@@ -492,4 +505,9 @@ func complete_mission(extra_stats := {}) -> void:
 		"retries": retries,
 	}
 	stats.merge(extra_stats, true)
+	# Stars: 1 for finishing, +1 for two or fewer falls/defeats, +1 for every Chronicle Leaf.
+	var stars := 1 + (1 if retries <= 2 else 0) + (1 if _leaves_collected() >= leaves_total else 0)
+	stats["stars"] = stars
+	stats["best"] = Game.record_stars(mission_id, stars)
+	stats["hero_done"] = next_mission == "" and Campaigns.hero_of(mission_id) != ""
 	ui.show_complete(stats)

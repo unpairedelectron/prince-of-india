@@ -14,6 +14,10 @@ enum S { IDLE, PATROL, DETECT, APPROACH, TELEGRAPH, ATTACK, RECOVER, BLOCK, STAG
 
 const ARROW := preload("res://scripts/enemies/arrow.gd")
 
+## Set by the mission before soldiers spawn (Campaigns.FACTIONS entry). Empty =
+## the original Mewar look (asset-pack imperial soldiers, Mewar allies).
+static var faction := {}
+
 @export var archetype := "training"
 @export var team := "imperial"
 @export var max_health := 60.0
@@ -41,6 +45,10 @@ var _patrol_dir := 1
 var _gravity := 1900.0
 var _retarget := 0.0
 var _hitbox_reach := Vector2(64, 50)
+var display_name := ""
+var _size := 1.0
+var _chain := 1
+var _enraged := false
 
 @onready var rig: HumanRig = $Rig
 @onready var health: Health = $Health
@@ -80,8 +88,36 @@ func _apply_archetype() -> void:
 		"armoured":
 			max_health = 110.0; attack_damage = 16.0; telegraph_time = 0.6; move_speed = 85.0
 			block_chance = 0.65; recover_time = 0.75; defeat_text = "Falls back"
+		"musket":
+			# Slow, hard-hitting straight shot with a long, obvious aim. Dodge through it.
+			max_health = 40.0; attack_damage = 15.0; telegraph_time = 1.0; recover_time = 0.9
+			preferred_range = 380.0; attack_range = 620.0; detect_range = 700.0; block_chance = 0.0
+			attack_cooldown = Vector2(2.0, 3.0); defeat_text = "Falls back"
+		"champion":
+			# Boss: fictional composite commander. Chains blows, and fights harder below half health.
+			max_health = 300.0; attack_damage = 18.0; attack_range = 86.0; telegraph_time = 0.52
+			move_speed = 125.0; block_chance = 0.4; recover_time = 0.5; attack_cooldown = Vector2(0.6, 1.1)
+			_hitbox_reach = Vector2(86, 56); _size = 1.22; defeat_text = "Is beaten"
 	if team == "mewar":
 		defeat_text = "Withdraws"
+
+
+func is_ranged() -> bool:
+	return archetype == "archer" or archetype == "musket"
+
+
+## Difficulty scaling (MissionBase.tier): later levels hit harder and attack sooner.
+func apply_tier(t: float, scale_health := true) -> void:
+	var k := maxf(0.0, t - 1.0)
+	attack_damage *= 1.0 + 0.09 * k
+	telegraph_time *= maxf(0.62, 1.0 - 0.05 * k)
+	recover_time *= maxf(0.6, 1.0 - 0.05 * k)
+	attack_cooldown *= maxf(0.55, 1.0 - 0.07 * k)
+	move_speed *= 1.0 + 0.03 * k
+	if scale_health:
+		max_health *= 1.0 + 0.13 * k
+		health.max_health = max_health
+		health.current = max_health
 
 
 func _apply_palette() -> void:
@@ -105,12 +141,19 @@ func _apply_palette() -> void:
 		# Mewar allies (composite): red turban, ochre jama.
 		pl.turban = Color("a8322a"); pl.turban_band = Game.C_GOLD; pl.jama = Color("c27b2e")
 		pl.jama_trim = Game.C_GOLD; pl.sash = Color("a8322a"); pl.pants = Color("e9dcc0")
+	if not faction.is_empty():
+		var look: Dictionary = faction["imperial" if team == "imperial" else "ally"]
+		for k in look:
+			if pl.has(k):
+				pl[k] = look[k]
+		rig.headgear = look.get("headgear", "turban")
+		rig.has_moustache = look.get("moustache", true)
 	match archetype:
 		"spear":
 			rig.weapon = "spear"
 		"archer":
 			rig.weapon = "bow"
-			if team == "mewar":
+			if team == "mewar" and faction.is_empty():
 				# Bhil archer ally (composite): white turban, plain off-white garments.
 				pl.turban = Color("efe9da"); pl.turban_band = Color("8a4b2a"); pl.jama = Color("d8c7a2")
 				pl.sash = Color("8a4b2a"); pl.jama_trim = Color("8a4b2a")
@@ -119,6 +162,15 @@ func _apply_palette() -> void:
 			rig.has_shield = true
 			pl.armour = Color("b8bec6"); pl.turban = Color("9aa2ab"); pl.turban_band = Color("6c737b")
 			pl.shield = Color("4a4f57"); pl.shield_boss = Color("c9ced4")
+		"musket":
+			rig.weapon = "musket"
+		"champion":
+			rig.has_armour = true
+			rig.has_shield = true
+			rig.blade_length = 50.0
+			rig.plume = true
+			pl.armour = Color("d9b84a"); pl.jama = (pl.jama as Color).darkened(0.35); pl.jama_trim = Color("e0b84a")
+			pl.shield = Color("2a1a14"); pl.shield_boss = Color("e0b84a"); pl.sash = Color("e0b84a")
 
 
 ## Asset-pack art where it exists: imperial sword/spear/armoured soldiers use the
@@ -128,6 +180,9 @@ func _choose_art() -> void:
 	if not rig is SpriteRig:
 		return
 	var sr := rig as SpriteRig
+	if not faction.is_empty() or archetype in ["champion", "musket"]:
+		sr.disable_sprite()
+		return
 	if team == "imperial" and archetype in ["sword", "spear", "armoured"] and sr.uses_sprite():
 		if archetype == "armoured":
 			sr.modulate = Color(0.85, 0.9, 1.0)
@@ -177,7 +232,7 @@ func _physics_process(delta: float) -> void:
 		S.DETECT:
 			_brake(delta)
 			_face(dx)
-			rig.play("block" if archetype != "archer" else "idle")
+			rig.play("block" if not is_ranged() else "idle")
 			if _t > 0.35:
 				_go(S.APPROACH)
 		S.APPROACH:
@@ -201,7 +256,7 @@ func _physics_process(delta: float) -> void:
 				_go(S.RETREAT)
 		S.TELEGRAPH:
 			_brake(delta)
-			if archetype == "archer":
+			if is_ranged():
 				rig.play("aim")
 				rig.set_progress(_t / telegraph_time)
 			else:
@@ -209,7 +264,7 @@ func _physics_process(delta: float) -> void:
 			rig.modulate = Color(1.0, 0.75, 0.7) if team == "imperial" else Color(1, 1, 0.85)
 			if _t >= telegraph_time:
 				rig.modulate = Color.WHITE
-				if archetype == "archer":
+				if is_ranged():
 					_fire_arrow()
 					_go(S.RECOVER)
 				else:
@@ -223,18 +278,26 @@ func _physics_process(delta: float) -> void:
 			velocity.x = facing * lunge if u > 0.3 and u < 0.5 else move_toward(velocity.x, 0.0, 2000.0 * delta)
 			if u >= 0.3 and u < 0.55:
 				if not hitbox.is_active():
-					hitbox.activate({"damage": attack_damage, "knockback": 200.0, "heavy": archetype == "armoured"})
+					hitbox.activate({"damage": attack_damage, "knockback": 200.0, "heavy": archetype in ["armoured", "champion"]})
 					rig.swoosh = 0.8
 					Fx.effect("slash", global_position + Vector2(facing * 44, -56), 0.6, facing < 0)
 			elif hitbox.is_active():
 				hitbox.deactivate()
 			if u >= 1.0:
-				_go(S.RECOVER)
+				if archetype == "champion" and _chain > 0 and available and dist < attack_range * 1.6:
+					# chained blow: a shorter (but still visible) wind-up
+					_chain -= 1
+					_face(dx)
+					_go(S.TELEGRAPH)
+					_t = telegraph_time * 0.45
+				else:
+					_go(S.RECOVER)
 		S.RECOVER:
 			_brake(delta)
 			rig.play("idle")
 			if _t >= recover_time:
-				_cooldown = randf_range(attack_cooldown.x, attack_cooldown.y)
+				_cooldown = randf_range(attack_cooldown.x, attack_cooldown.y) * (0.6 if _enraged else 1.0)
+				_chain = 2 if _enraged else 1
 				_go(S.APPROACH)
 		S.BLOCK:
 			_brake(delta)
@@ -258,7 +321,13 @@ func _physics_process(delta: float) -> void:
 			_brake(delta)
 			rig.play("yield")
 
-	rig.scale.x = facing
+	if archetype == "champion" and not _enraged and health.current < max_health * 0.5 and state != S.DEFEATED:
+		_enraged = true
+		Fx.spark(global_position + Vector2(0, -70), Color(1, 0.5, 0.2), 24)
+		CameraRig.shake_global(6.0)
+	rig.scale = Vector2(facing * _size, _size)
+	if _enraged and state != S.TELEGRAPH and state != S.DEFEATED:
+		rig.modulate = Color(1.0, 0.82, 0.72)
 	hitbox.scale.x = facing
 	velocity.y = minf(velocity.y + _gravity * delta, 1100.0)
 	move_and_slide()
@@ -328,9 +397,13 @@ func _fire_arrow() -> void:
 		aim.y -= clampf(to.length() / 2400.0, 0.0, 0.25)   # slight arc
 		aim = aim.normalized()
 	a.velocity = aim * 620.0
+	if archetype == "musket":
+		a.style = "ball"
+		a.velocity = Vector2(facing, clampf(aim.y, -0.12, 0.12)).normalized() * 1050.0
+		Fx.spark(origin + Vector2(facing * 30.0, 0), Color(1, 0.8, 0.4), 10)
 	a.global_position = origin
 	get_parent().add_child(a)
-	Audio.sfx("bow", 0.1, -4.0)
+	Audio.sfx("musket" if archetype == "musket" else "bow", 0.1, -4.0)
 
 
 func _go(s: S) -> void:

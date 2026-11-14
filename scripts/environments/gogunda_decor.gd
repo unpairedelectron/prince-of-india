@@ -62,7 +62,7 @@ func _fire_frame(p: Vector2, k: float) -> void:
 	var sf := MewarAssets.effect_frames()
 	if sf == null:
 		return
-	var f := int(_t * 10.0 + p.x * 0.01) % 4
+	var f := posmod(int(_t * 10.0 + p.x * 0.01), 4)
 	var t := sf.get_frame_texture("fire", f)
 	draw_circle(p + Vector2(0, -20 * k), 34.0 * k, Color(1, 0.6, 0.2, 0.12))
 	draw_texture_rect(t, Rect2(p.x - 48 * k, p.y - 80 * k, 96 * k, 96 * k), false)

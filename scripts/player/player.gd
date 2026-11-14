@@ -77,6 +77,12 @@ var _interactables: Array = []
 var _block_time := 0.0
 var _jumping := false
 var _air_time := 0.0
+# hero traits (see data/campaigns.gd HEROES[..].stats)
+var hero := {}
+var block_cost_mult := 1.0
+var parry_refund := 0.0
+var dodge_crit := 1.0
+var _crit_window := 0.0
 
 @onready var rig: HumanRig = $Rig
 @onready var health: Health = $Health
@@ -107,6 +113,46 @@ func _ready() -> void:
 	stamina = max_stamina
 
 
+## Applies a hero definition: look (procedural rig + palette unless the hero
+## has sprite art) and the stat changes that make each hero play differently.
+func apply_hero(cfg: Dictionary) -> void:
+	hero = cfg
+	var look: Dictionary = cfg.get("look", {})
+	if not look.get("sprite", false):
+		if rig is SpriteRig:
+			(rig as SpriteRig).disable_sprite()
+		rig.apply_look(look)
+	var st: Dictionary = cfg.get("stats", {})
+	var sp: float = st.get("speed", 1.0)
+	walk_speed *= sp
+	run_speed *= sp
+	sprint_speed *= sp
+	cost_dodge *= st.get("dodge_cost", 1.0)
+	dodge_crit = st.get("dodge_crit", 1.0)
+	var aspd: float = st.get("attack_speed", 1.0)
+	light_duration /= aspd
+	heavy_duration /= aspd
+	cost_light *= st.get("light_cost", 1.0)
+	block_cost_mult = st.get("block_cost", 1.0)
+	parry_window *= st.get("parry_window", 1.0)
+	parry_refund = st.get("parry_refund", 0.0)
+	heavy_damage *= st.get("heavy_damage", 1.0)
+	heavy_windup *= st.get("heavy_windup", 1.0)
+	if st.has("health"):
+		health.max_health = st.health
+		health.restore_full()
+
+
+## Damage multiplier for the strike being launched; consumes the post-dodge bonus.
+func _strike_bonus() -> float:
+	if _crit_window > 0.0 and dodge_crit > 1.0:
+		_crit_window = 0.0
+		Fx.spark(global_position + Vector2(facing * 40, -60), Color(1.0, 0.6, 0.2), 16)
+		Audio.sfx("parry", 0.1, -6.0)
+		return dodge_crit
+	return 1.0
+
+
 # ================================================================== input
 
 func _axis() -> float:
@@ -134,6 +180,7 @@ func _held(action: String) -> bool:
 func _physics_process(delta: float) -> void:
 	_state_time += delta
 	_iframes = maxf(0.0, _iframes - delta)
+	_crit_window = maxf(0.0, _crit_window - delta)
 	_tick_stamina(delta)
 	if _pressed("jump"):
 		_jump_buffer = jump_buffer
@@ -409,7 +456,7 @@ func _state_attack(delta: float) -> void:
 	_state_simple_physics(delta, -1.0)
 	if u >= 0.3 and u < 0.58:
 		if not hitbox.is_active():
-			hitbox.activate({"damage": light_damage[_combo], "knockback": 120.0 if _combo < 2 else 260.0, "heavy": false, "stagger": 0.25 if _combo < 2 else 0.45})
+			hitbox.activate({"damage": light_damage[_combo] * _strike_bonus(), "knockback": 120.0 if _combo < 2 else 260.0, "heavy": false, "stagger": 0.25 if _combo < 2 else 0.45})
 			rig.swoosh = 1.0
 			Fx.effect("slash", global_position + Vector2(facing * 46, -58), 0.75, facing < 0, (-0.3 if _combo == 1 else 0.0))
 			Audio.sfx("swing", 0.12, -3.0)
@@ -448,7 +495,7 @@ func _state_heavy(delta: float) -> void:
 	_state_simple_physics(delta, -1.0)
 	if u >= 0.25 and u < 0.5:
 		if not hitbox.is_active():
-			hitbox.activate({"damage": heavy_damage, "knockback": 380.0, "heavy": true, "stagger": 0.8})
+			hitbox.activate({"damage": heavy_damage * _strike_bonus(), "knockback": 380.0, "heavy": true, "stagger": 0.8})
 			rig.swoosh = 1.4
 			Fx.effect("slash", global_position + Vector2(facing * 50, -60), 1.05, facing < 0, 0.4)
 			Audio.sfx("heavy", 0.08, -2.0)
@@ -497,6 +544,7 @@ func _state_dodge(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, 900.0 * delta)
 	_state_simple_physics(delta, -1.0)
 	if _state_time >= dodge_time:
+		_crit_window = 0.75
 		_set_state(State.NORMAL)
 
 
@@ -538,8 +586,11 @@ func take_hit(info: Dictionary) -> void:
 			CameraRig.shake_global(4.0)
 			if src and src.has_method("on_parried"):
 				src.on_parried()
+			if parry_refund > 0.0:
+				stamina = minf(max_stamina, stamina + parry_refund)
+				stamina_changed.emit(stamina, max_stamina)
 			return
-		_use_stamina(cost_block_hit * (1.8 if info.get("heavy", false) else 1.0))
+		_use_stamina(cost_block_hit * block_cost_mult * (1.8 if info.get("heavy", false) else 1.0))
 		Audio.sfx("block", 0.08, -2.0)
 		Fx.spark(global_position + Vector2(facing * 20, -58), Color(1, 0.8, 0.4), 8)
 		velocity.x = -facing * 140.0

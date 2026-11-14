@@ -20,7 +20,12 @@ var palette := {
 @export var has_moustache := true
 @export var blade_length := 44.0
 @export var wooden_sword := false
-var weapon := "sword"   ## sword | spear | bow
+var weapon := "sword"   ## sword | spear | bow | musket
+var headgear := "turban"   ## turban | jiretop | pagdi_f | ahom | helmet | shako
+var beard := false
+var female := false
+var dual := false          ## second sword in the near hand instead of a shield
+var plume := false
 
 var anim := "idle"
 var anim_time := 0.0
@@ -43,6 +48,21 @@ func _ready() -> void:
 	for k in _keys:
 		_p[k] = 0.0
 	_p.merge(_pose_idle(0.0), true)
+
+
+## Hero / faction look: palette colours plus headgear and build flags.
+func apply_look(look: Dictionary) -> void:
+	palette = palette.duplicate()
+	for k in look:
+		if palette.has(k):
+			palette[k] = look[k]
+	headgear = look.get("headgear", "turban")
+	beard = look.get("beard", false)
+	female = look.get("female", false)
+	dual = look.get("dual", false)
+	has_shield = not dual
+	has_armour = look.get("armour", true)
+	blade_length = look.get("blade_length", blade_length)
 
 
 func play(new_anim: String, reset := false) -> void:
@@ -222,6 +242,8 @@ func _draw() -> void:
 		_sword(hand_f, p.af + p.ef + p.sw)
 	elif show_sword and weapon == "spear":
 		_spear(hand_f, p.af + p.ef + p.sw)
+	elif weapon == "musket":
+		_musket(hand_f)
 
 	# torso (jama)
 	var side := Vector2(cos(p.lean), sin(p.lean))
@@ -252,21 +274,24 @@ func _draw() -> void:
 	draw_circle(head_c, 8.0, palette.skin)
 	var hu := Vector2(sin(p.lean + p.head), -cos(p.lean + p.head))
 	var hs := Vector2(cos(p.lean + p.head), sin(p.lean + p.head))
-	# turban (pagri): layered dome leaning back, band and tail
 	var tb := head_c + hu * 3.0
-	draw_colored_polygon(PackedVector2Array([
-		tb - hs * 9.5, tb + hs * 8.5, tb + hs * 7.0 + hu * 7.0, tb + hs * 1.0 + hu * 10.5, tb - hs * 8.0 + hu * 8.0]), palette.turban)
-	draw_line(tb - hs * 9.5 + hu * 1.0, tb + hs * 8.5 + hu * 1.0, palette.turban_band, 2.0)
-	draw_line(tb - hs * 6.0 + hu * 5.0, tb + hs * 6.0 + hu * 7.5, palette.turban.darkened(0.15), 1.5)
-	draw_line(tb - hs * 9.0, tb - hs * 13.0 - hu * 6.0, palette.turban.darkened(0.1), 3.0)
+	_headgear(tb, hu, hs)
 	# face details
 	var eye := head_c + hs * 4.0 - hu * 0.5
 	draw_circle(eye, 1.1, Color(0.08, 0.05, 0.04))
 	draw_line(head_c - hs * 4.0 - hu * 1.0, head_c - hs * 4.0 - hu * 6.0, palette.hair, 2.5)  # sideburn
-	if has_moustache:
+	if has_moustache and not female:
 		var m := head_c + hs * 5.5 - hu * 4.0
 		draw_line(m - hs * 4.5 + hu * 1.5, m + hs * 2.5, palette.hair, 2.5)
 		draw_line(m + hs * 2.5, m + hs * 4.0 + hu * 2.0, palette.hair, 2.0)
+	if beard:
+		draw_colored_polygon(PackedVector2Array([head_c - hs * 3.0 - hu * 4.0, head_c + hs * 7.0 - hu * 4.5, head_c + hs * 5.0 - hu * 11.0, head_c - hs * 1.0 - hu * 8.5]), palette.hair)
+	if female:
+		# pearl necklace, earring and a long plait down the back
+		draw_arc(neck + up * 1.0, 6.0, 0.2, PI - 0.2, 8, Color("f3ecd8"), 2.0)
+		draw_circle(head_c - hs * 2.5 - hu * 3.5, 1.8, Game.C_GOLD)
+		draw_line(head_c - hs * 7.0 + hu * 2.0, shoulder - side * 10.0 - up * 6.0, palette.hair, 4.0)
+		draw_line(shoulder - side * 10.0 - up * 6.0, waist - side * 11.0, palette.hair, 3.0)
 
 	# near (shield) arm
 	var sh_b := shoulder + Vector2(2, 2)
@@ -274,7 +299,9 @@ func _draw() -> void:
 	var hand_b := elbow_b + dir(p.ab + p.eb) * FORE
 	_seg(sh_b, elbow_b, 6.0, palette.jama)
 	_seg(elbow_b, hand_b, 5.0, palette.skin)
-	if has_shield:
+	if dual:
+		_sword(hand_b, p.ab + p.eb + (0.5 if p.shield_up < 0.5 else -1.1))
+	elif has_shield:
 		var sc := hand_b + Vector2(3.0 + p.shield_up * 2.0, 0)
 		var r: float = 12.0 + p.shield_up * 1.5
 		draw_circle(sc, r, palette.shield)
@@ -319,6 +346,66 @@ func _sword(hand: Vector2, a: float) -> void:
 	draw_polyline(pts, col, 3.0 if wooden_sword else 2.6)
 	if not wooden_sword:
 		draw_polyline(pts, Color(1, 1, 1, 0.35), 1.0)
+
+
+## Headgear variants, drawn relative to the top of the head (tb), head up (hu)
+## and head forward (hs) vectors.
+func _headgear(tb: Vector2, hu: Vector2, hs: Vector2) -> void:
+	var c: Color = palette.turban
+	var band: Color = palette.turban_band
+	match headgear:
+		"jiretop":
+			# Maratha jiretop: tall crest swept forward and up, with a jewelled band
+			draw_colored_polygon(PackedVector2Array([tb - hs * 9.5, tb + hs * 8.5, tb + hs * 8.5 + hu * 5.0, tb + hs * 4.0 + hu * 9.0, tb + hs * 3.0 + hu * 18.0, tb - hs * 3.0 + hu * 12.0, tb - hs * 9.0 + hu * 7.0]), c)
+			draw_line(tb - hs * 9.5 + hu * 1.0, tb + hs * 8.5 + hu * 1.0, band, 2.5)
+			draw_line(tb + hs * 3.0 + hu * 17.0, tb - hs * 1.0 + hu * 8.0, c.darkened(0.18), 1.5)
+			draw_circle(tb + hs * 6.0 + hu * 4.0, 2.0, Color("f3ecd8"))
+		"pagdi_f":
+			# the Rani's battle turban with a trailing end and a jewelled sarpech
+			draw_colored_polygon(PackedVector2Array([tb - hs * 9.5, tb + hs * 8.5, tb + hs * 7.0 + hu * 7.0, tb + hs * 1.0 + hu * 10.0, tb - hs * 8.0 + hu * 8.0]), c)
+			draw_line(tb - hs * 9.5 + hu * 1.0, tb + hs * 8.5 + hu * 1.0, band, 2.0)
+			draw_line(tb - hs * 8.0 + hu * 5.0, tb - hs * 17.0 - hu * 2.0 + Vector2(0, sin(anim_time * 6.0) * 2.0), c.darkened(0.08), 4.0)
+			draw_line(tb + hs * 5.0 + hu * 3.0, tb + hs * 6.0 + hu * 12.0, band, 2.0)
+			draw_circle(tb + hs * 5.0 + hu * 4.0, 2.2, Color("e8443a"))
+		"ahom":
+			# Ahom commander: tied head-cloth with a knot and falling ends, hair gathered behind
+			draw_circle(tb - hs * 7.0 + hu * 1.0, 5.0, palette.hair)
+			draw_colored_polygon(PackedVector2Array([tb - hs * 9.0 - hu * 1.0, tb + hs * 8.5 - hu * 1.0, tb + hs * 7.5 + hu * 5.0, tb - hs * 1.0 + hu * 7.5, tb - hs * 8.5 + hu * 5.0]), c)
+			draw_line(tb - hs * 9.0 + hu * 0.5, tb + hs * 8.5 + hu * 0.5, band, 2.5)
+			draw_line(tb - hs * 9.0 + hu * 1.0, tb - hs * 14.0 - hu * 7.0, c, 3.0)
+			draw_line(tb - hs * 9.0 + hu * 1.0, tb - hs * 11.0 - hu * 10.0, band, 2.0)
+		"helmet":
+			# kulah khud: steel bowl, spike and mail curtain
+			var st := Color("aab0b8")
+			draw_colored_polygon(PackedVector2Array([tb - hs * 9.0, tb + hs * 8.5, tb + hs * 6.5 + hu * 6.0, tb + hu * 9.0, tb - hs * 7.0 + hu * 6.0]), st)
+			draw_line(tb + hu * 9.0, tb + hu * 16.0, st.darkened(0.2), 2.0)
+			draw_line(tb - hs * 9.0, tb + hs * 8.5, band, 2.0)
+			draw_colored_polygon(PackedVector2Array([tb - hs * 9.0, tb - hs * 3.0, tb - hs * 4.0 - hu * 11.0, tb - hs * 10.0 - hu * 10.0]), st.darkened(0.25))
+			draw_line(tb + hs * 7.5, tb + hs * 7.5 - hu * 5.0, st.darkened(0.2), 2.0)
+		"shako":
+			# Company infantry cap with a peak and a badge
+			draw_colored_polygon(PackedVector2Array([tb - hs * 8.0, tb + hs * 8.0, tb + hs * 7.0 + hu * 12.0, tb - hs * 7.0 + hu * 12.0]), c)
+			draw_line(tb - hs * 8.0, tb + hs * 12.0, c.darkened(0.2), 2.5)
+			draw_line(tb - hs * 7.5 + hu * 11.0, tb + hs * 7.5 + hu * 11.0, band, 2.0)
+			draw_circle(tb + hs * 4.0 + hu * 6.0, 2.0, band)
+		_:
+			# turban (pagri): layered dome leaning back, band and tail
+			draw_colored_polygon(PackedVector2Array([
+				tb - hs * 9.5, tb + hs * 8.5, tb + hs * 7.0 + hu * 7.0, tb + hs * 1.0 + hu * 10.5, tb - hs * 8.0 + hu * 8.0]), c)
+			draw_line(tb - hs * 9.5 + hu * 1.0, tb + hs * 8.5 + hu * 1.0, band, 2.0)
+			draw_line(tb - hs * 6.0 + hu * 5.0, tb + hs * 6.0 + hu * 7.5, c.darkened(0.15), 1.5)
+			draw_line(tb - hs * 9.0, tb - hs * 13.0 - hu * 6.0, c.darkened(0.1), 3.0)
+	if plume:
+		draw_line(tb + hu * 9.0, tb - hs * 6.0 + hu * 22.0, Color("b3261e"), 4.0)
+		draw_line(tb + hu * 9.0, tb - hs * 2.0 + hu * 24.0, Color("e0b84a"), 2.0)
+
+
+func _musket(hand: Vector2) -> void:
+	var a := 1.57 if anim == "aim" else 0.5
+	var d := dir(a)
+	draw_line(hand - d * 16.0, hand + d * 8.0, Color("5a3820"), 5.0)
+	draw_line(hand - d * 10.0, hand + d * 44.0, Color("4a4f57"), 2.5)
+	draw_line(hand + d * 44.0, hand + d * 56.0, Color("c9ced4"), 1.5)
 
 
 func _spear(hand: Vector2, a: float) -> void:

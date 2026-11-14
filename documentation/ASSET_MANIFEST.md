@@ -31,3 +31,17 @@ All current art and audio is **PLACEHOLDER** and original: drawn in code or synt
 | Music "gogunda_theme", "battle_theme", "ride_theme" (drone + percussion loops), "wind" | assets/audio/music/*.wav | Placeholder (synthesised) | Original | Composed score with Rajasthani instrumentation |
 
 Generator script for audio/icon: tools/make_assets.py
+
+## Added with the four-hero structure (all placeholder, all original)
+| What | Where | How it is made |
+|---|---|---|
+| Shivaji Maharaj, Rani Lakshmibai, Lachit Borphukan (player figures) | `HumanRig` + `Campaigns.HEROES[..].look` | Code-drawn puppet: palette, headgear (jiretop / battle turban with plait / Ahom head-cloth), beard, twin swords. **Needs real character art; does not match the Mewar pack style.** |
+| Faction soldiers (Bijapur, Mughal, Orchha, Company, Ahom / Maratha / Jhansi allies) | `Soldier` + `Campaigns.FACTIONS` | Same puppet recoloured, with helmet / shako / turban; musketeer weapon; gold-armoured boss with plume. No faith symbols. |
+| Terrain styles basalt, grass, deck | `TerrainBlock` | Code-drawn |
+| Backdrops ghats, river, fortline, fleet; rain; river water | `Backdrop`, `MissionCampaign` | Code-drawn |
+| Spear trap, raft / boat / lift | `SpikeTrap`, `MovingPlatform` | Code-drawn |
+| Music: sahyadri_theme, jhansi_theme, assam_theme, night_theme, boss_theme; ambience: rain | `assets/audio/music/` | `tools/make_audio_campaigns.py` (synthesised) |
+| SFX: spike, musket, cannon | `assets/audio/sfx/` | same script |
+
+Priority order for commissioned art: (1) the three new heroes, to the same standard as a re-drawn Pratap; (2) one enemy
+sheet per faction with side-on attack frames; (3) a tileset and two backgrounds each for the Sahyadri, Jhansi and Assam.

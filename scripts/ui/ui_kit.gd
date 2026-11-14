@@ -114,3 +114,19 @@ static func safe_margins(vp: Viewport) -> Dictionary:
 		"right": maxf(0.0, (wpos.x + win.x - safe.end.x) * sx),
 		"bottom": maxf(0.0, (wpos.y + win.y - safe.end.y) * sy),
 	}
+
+
+## Five-point star for level ratings (drawn, so it needs no art file).
+class Star extends Control:
+	var filled := true
+
+	func _draw() -> void:
+		var c := size * 0.5
+		var r := minf(size.x, size.y) * 0.5
+		var pts := PackedVector2Array()
+		for i in 10:
+			var a := -PI * 0.5 + i * PI / 5.0
+			pts.append(c + Vector2(cos(a), sin(a)) * (r if i % 2 == 0 else r * 0.42))
+		draw_colored_polygon(pts, Color("f0c040") if filled else Color(0.25, 0.2, 0.18, 0.8))
+		pts.append(pts[0])
+		draw_polyline(pts, Color("7a5a1a") if filled else Color(0.45, 0.4, 0.35), 2.0)

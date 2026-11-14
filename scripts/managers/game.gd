@@ -10,17 +10,10 @@ const SAVE_VERSION := 1
 
 const SCENE_MENU := "res://scenes/menus/main_menu.tscn"
 const SCENE_STORY := "res://scenes/menus/story_card.tscn"
-const MISSIONS := {
-	"gogunda": "res://scenes/environments/gogunda/gogunda.tscn",
-	"haldighati": "res://scenes/environments/haldighati/haldighati.tscn",
-	"aravalli": "res://scenes/environments/aravalli/aravalli.tscn",
+## level id -> scene path. Filled in _ready() from data/campaigns.gd: the
+## hand-built missions have their own scenes, every other level shares one.
+var MISSIONS := {
 	"asset_test": "res://scenes/environments/test/asset_test_room.tscn",
-}
-const MISSION_ORDER := ["gogunda", "haldighati", "aravalli"]
-const MISSION_TITLES := {
-	"gogunda": "1. The Oath of Mewar  (Gogunda, 1572)",
-	"haldighati": "2. The Yellow Pass  (Haldighati, 1576)",
-	"aravalli": "3. Chetak - The Final Ride  (Aravalli, 1576)",
 }
 
 ## Palette shared by procedural placeholder art (see documentation/ASSET_MANIFEST.md).
@@ -47,6 +40,8 @@ var progress := {
 	"checkpoint": -1,
 	"collectibles": [],
 	"missions_completed": [],
+	"stars": {},
+	"hero": "pratap",
 }
 
 ## Run-time (not saved) values passed between scenes.
@@ -57,6 +52,8 @@ var mission_start_msec := 0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	for id in Campaigns.LEVELS:
+		MISSIONS[id] = Campaigns.scene_of(id)
 	_setup_input()
 	load_game()
 
@@ -153,6 +150,10 @@ func load_game() -> void:
 			if progress.has(k):
 				progress[k] = parsed.progress[k]
 	progress.checkpoint = int(progress.checkpoint)
+	if typeof(progress.stars) != TYPE_DICTIONARY:
+		progress.stars = {}
+	if not _valid_hero(progress.hero):
+		progress.hero = "pratap"
 
 
 func has_continue() -> bool:
@@ -166,6 +167,8 @@ func reset_progress() -> void:
 		"checkpoint": -1,
 		"collectibles": [],
 		"missions_completed": [],
+		"stars": {},
+		"hero": "pratap",
 	}
 	save_game()
 
@@ -194,12 +197,49 @@ func complete_mission(mission: String) -> void:
 
 # ---------------------------------------------------------------- scene flow
 
-func new_game() -> void:
-	progress.current_mission = "gogunda"
-	progress.checkpoint = -1
-	progress.collectibles = progress.collectibles.filter(func(c): return not String(c).begins_with("gogunda"))
+func _valid_hero(h) -> bool:
+	return typeof(h) == TYPE_STRING and Campaigns.HEROES.has(h)
+
+
+## A hero opens once the previous hero's first level is cleared (the first is always open).
+func is_hero_unlocked(hero: String) -> bool:
+	var i := Campaigns.HERO_ORDER.find(hero)
+	if i <= 0:
+		return i == 0
+	return Campaigns.HEROES[Campaigns.HERO_ORDER[i - 1]].levels[0] in progress.missions_completed
+
+
+## A level opens when the one before it is cleared; a hero's first level opens with the hero.
+func is_level_unlocked(level: String) -> bool:
+	var hero := Campaigns.hero_of(level)
+	if hero == "" or not is_hero_unlocked(hero):
+		return false
+	var i := Campaigns.level_index(level)
+	return i == 0 or level in progress.missions_unlocked or Campaigns.HEROES[hero].levels[i - 1] in progress.missions_completed
+
+
+func stars_for(level: String) -> int:
+	return int(progress.stars.get(level, 0))
+
+
+func hero_stars(hero: String) -> int:
+	var n := 0
+	for l in Campaigns.HEROES[hero].levels:
+		n += stars_for(l)
+	return n
+
+
+## Keeps the best star rating for a level; returns that best.
+func record_stars(level: String, stars: int) -> int:
+	var best := maxi(stars, stars_for(level))
+	progress.stars[level] = best
 	save_game()
-	show_story(intro_for("gogunda"), MISSIONS.gogunda)
+	return best
+
+
+## Start (or restart) the selected hero's story from their first level.
+func new_game() -> void:
+	play_chapter(Campaigns.HEROES[progress.hero].levels[0])
 
 
 func intro_for(mission: String) -> Array:
@@ -207,13 +247,14 @@ func intro_for(mission: String) -> Array:
 		"gogunda": return StoryText.MISSION_1_INTRO
 		"haldighati": return StoryText.MISSION_2_INTRO
 		"aravalli": return StoryText.MISSION_3_INTRO
-	return []
+	return Campaigns.LEVELS.get(mission, {}).get("intro", [])
 
 
-## Chapter select: replay any unlocked mission from its start.
+## Level select: play any unlocked level from its start.
 func play_chapter(mission: String) -> void:
-	if not mission in progress.missions_unlocked or not MISSIONS.has(mission):
+	if not is_level_unlocked(mission) or not MISSIONS.has(mission):
 		return
+	progress.hero = Campaigns.hero_of(mission)
 	progress.current_mission = mission
 	progress.checkpoint = -1
 	save_game()
@@ -228,6 +269,7 @@ func continue_game() -> void:
 
 
 func start_mission(mission: String) -> void:
+	progress.current_mission = mission
 	mission_start_msec = Time.get_ticks_msec()
 	goto(MISSIONS[mission])
 

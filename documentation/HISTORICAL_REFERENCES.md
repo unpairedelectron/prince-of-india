@@ -42,3 +42,70 @@ How the game uses history: every story card and gallery entry carries one of thr
 - UNESCO decision 37 COM 8B.31 (inscription 2013): https://whc.unesco.org/en/decisions/5159
 - ASI Jaipur Circle, Chetak Samadhi (Balicha): https://asijaipurcircle.nic.in/
 - Overview articles cross-checked for dates (secondary; replace with academic citations later): Wikipedia "Maharana Pratap", "Battle of Haldighati".
+
+---
+
+# Hero campaigns added with the four-hero structure (AJEYA)
+
+**Status: NOT YET SOURCE-CHECKED.** The claims below were written from general knowledge when the campaigns were
+drafted. Nothing here has been checked against a cited source the way the Mewar tables above were. Do that before
+release, and correct the story cards in `data/campaigns.gd` where needed. Days and numbers that sources dispute are
+marked.
+
+Rules carried over from the Mewar missions:
+- Every card is labelled HISTORICAL RECORD, TRADITIONAL ACCOUNT or GAMEPLAY - FICTIONAL.
+- Every enemy soldier and **every boss is a fictional composite**. No named historical person is an opponent
+  (Afzal Khan, Shaista Khan, Hugh Rose, Ram Singh and others are named in story cards only).
+- Opponents are armies of states and empires. No faction is identified with a faith or a community, and no faith
+  symbols are drawn. Both sides of every one of these wars were mixed.
+- Defeats are shown as defeats: Haldighati, Alaboi and Kotah-ki-Serai are not presented as victories.
+- Defeat animations stay non-graphic (kneel, fade).
+
+## Maharana Pratap, levels 4-5
+| Claim in game | Label | To verify |
+|---|---|---|
+| Guerrilla years in the Aravallis after 1576, with Bhil support | Historical | Wording only |
+| Bhamashah gave his fortune to fund the army | Traditional | Often treated as historical; kept as tradition |
+| Dewair, 1582: imperial post overrun; other posts then abandoned | Historical | "One after another" is the usual summary; check scale |
+| Most of Mewar recovered, not Chittor; ruled from Chavand; died 1597 | Historical | |
+
+## Chhatrapati Shivaji Maharaj
+| Claim in game | Label | To verify |
+|---|---|---|
+| Took Torna in 1646, aged about sixteen, with little fighting | Historical | Year (1646 vs 1647) and how it was taken |
+| Treasure at Torna funded Rajgad, capital for about 25 years | Historical | Tradition in some tellings |
+| Pratapgad, 10 Nov 1659: parley, Afzal Khan killed, accounts differ on who struck first; army routed in Javali | Historical | The parley is not shown or played |
+| Escape from Panhala on a rainy night in July 1660; Baji Prabhu Deshpande's stand at Ghod Khind / Pavan Khind | Historical | Numbers of the rear guard; distance (~60 km) |
+| Lal Mahal raid on Shaista Khan, April 1663 | Historical | |
+| Wedding-procession ruse; Shaista Khan lost fingers | Traditional | |
+| Treaty of Purandar 1665 (23 forts); Agra 1666; reconquest from 1670; Sinhagad and Tanaji Malusare | Historical | |
+| Coronation at Raigad, 6 June 1674; died 1680 | Historical | |
+
+## Rani Lakshmibai
+| Claim in game | Label | To verify |
+|---|---|---|
+| Born Manikarnika in Varanasi; married Gangadhar Rao 1842; widowed 1853; annexation under the Doctrine of Lapse | Historical | Birth year is disputed (1828 / 1835); game says "c. 1828" |
+| "I will not give up my Jhansi"; trained women of her household | Traditional | |
+| Took charge after the June 1857 mutiny; defeated the Orchha and Datia invasion in autumn 1857 | Historical | |
+| Siege by Hugh Rose from late March 1858; Tatya Tope beaten at the Betwa on 1 April; city stormed 3 April | Historical | |
+| Left the fort on the night of 4 April with Damodar Rao and rode to Kalpi (~150 km) | Historical | |
+| The leap from the wall on the horse Badal | Traditional | Card says historians doubt it |
+| Gwalior taken 1 June 1858; killed at Kotah-ki-Serai on 17 June 1858 | Historical | Some sources give 18 June |
+| Hugh Rose called her the best and bravest of the rebel leaders | Historical | **Check the exact wording before release** |
+
+## Lachit Borphukan
+| Claim in game | Label | To verify |
+|---|---|---|
+| Guwahati ceded after the 1662 invasion; Lachit made Borphukan in 1667 by Chakradhwaj Singha | Historical | |
+| Presented with the gold-hilted Hengdang | Traditional | |
+| Itakhuli and Guwahati retaken, November 1667, by night assault | Historical | |
+| Scouts poured water into the cannon | Traditional | |
+| Alaboi, 5 August 1669: about 10,000 Ahom soldiers lost after the king ordered an attack | Historical | Figure is the traditional one |
+| The rampart, the uncle, "My uncle is not greater than my country" | Traditional | Shown only as a story card |
+| Saraighat, March 1671: Lachit, gravely ill, led the fleet; Mughal force under Ram Singh of Amber withdrew | Historical | |
+| Died about a year later (1672); NDA gold medal in his name | Historical | |
+
+## Fictional content in the new levels
+All level layouts, spear traps, drifting rafts and boats, falling shells, wave fights, allies' positions, and the nine
+bosses (Commander of Dewair, Captain of the Vanguard, Captain of the Palace Guard, the Killedar, Captain of the
+Invaders, Officer of the Hussars, Captain of Itakhuli, Leader of the Night Raid, Captain of the Flagship).

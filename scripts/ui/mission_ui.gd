@@ -29,6 +29,9 @@ var _toast_timer := 0.0
 var _fade: ColorRect
 var _pause_panel: Control
 var _modal: Control
+var _boss_box: VBoxContainer
+var _boss_bar: ProgressBar
+var _boss_name: Label
 
 
 func _ready() -> void:
@@ -114,6 +117,20 @@ func _ready() -> void:
 	_add_shadow(_toast)
 	_root.add_child(_toast)
 
+	# --- boss bar (bottom centre, between the thumbs)
+	_boss_box = VBoxContainer.new()
+	_boss_box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_boss_box.position = Vector2(-260, -84)
+	_boss_box.custom_minimum_size = Vector2(520, 0)
+	_boss_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_box.visible = false
+	_boss_name = UiKit.label("", 22, Game.C_GOLD)
+	_add_shadow(_boss_name)
+	_boss_bar = UiKit.bar(Color("b3261e"), 520, 16)
+	_boss_box.add_child(_boss_name)
+	_boss_box.add_child(_boss_bar)
+	_root.add_child(_boss_box)
+
 	touch = TouchControls.new()
 	add_child(touch)
 
@@ -182,6 +199,9 @@ func _on_mounted(m: bool, h: Node) -> void:
 	_horse_box.visible = m
 	if m and h is Horse:
 		horse = h
+		for c in _horse_box.get_children():
+			if c is Label:
+				(c as Label).text = horse.horse_name.to_upper()
 		if not horse.stamina_changed.is_connected(_on_horse_stamina):
 			horse.stamina_changed.connect(_on_horse_stamina)
 		_horse_bar.value = horse.stamina
@@ -205,6 +225,22 @@ func set_objective(text: String) -> void:
 	var tw := create_tween()
 	_objective_label.modulate = Color(1.6, 1.4, 0.8)
 	tw.tween_property(_objective_label, "modulate", Color.WHITE, 0.8)
+
+
+func show_boss(boss_name: String, health: Health) -> void:
+	_boss_name.text = boss_name
+	_boss_bar.max_value = health.max_health
+	_boss_bar.value = health.current
+	_boss_box.visible = true
+	_boss_box.modulate.a = 0.0
+	create_tween().tween_property(_boss_box, "modulate:a", 1.0, 0.5)
+	health.changed.connect(func(c, m):
+		_boss_bar.max_value = m
+		_boss_bar.value = c)
+
+
+func hide_boss() -> void:
+	_boss_box.visible = false
 
 
 func set_collectibles(n: int, total: int) -> void:
@@ -319,8 +355,26 @@ func show_complete(stats: Dictionary) -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 10)
 	panel.add_child(v)
-	v.add_child(UiKit.label("MISSION COMPLETE", 36, Game.C_GOLD))
+	v.add_child(UiKit.label("LEGEND COMPLETE" if stats.get("hero_done", false) else "LEVEL COMPLETE", 36, Game.C_GOLD))
 	v.add_child(UiKit.label(stats.get("title", ""), 24))
+	var stars: int = stats.get("stars", 0)
+	if stars > 0:
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_theme_constant_override("separation", 10)
+		for i in 3:
+			var st := UiKit.Star.new()
+			st.filled = i < stars
+			st.custom_minimum_size = Vector2(54, 54)
+			row.add_child(st)
+			if i < stars:
+				st.scale = Vector2.ZERO
+				st.pivot_offset = Vector2(27, 27)
+				var tw := create_tween()
+				tw.tween_interval(0.25 + i * 0.3)
+				tw.tween_property(st, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		v.add_child(row)
+		v.add_child(UiKit.label("Finish  /  2 or fewer falls  /  every Chronicle Leaf", 14, Color(0.85, 0.8, 0.7)))
 	var secs := int(stats.get("time", 0.0))
 	v.add_child(UiKit.label("Time  %d:%02d" % [secs / 60, secs % 60], 22))
 	v.add_child(UiKit.label("Chronicle Leaves  %d / %d" % [stats.get("leaves", 0), stats.get("leaves_total", 0)], 22))

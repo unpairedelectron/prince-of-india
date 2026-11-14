@@ -108,10 +108,27 @@ func _draw() -> void:
 				var py := r.position.y + rng.randf_range(8, minf(r.size.y, 300))
 				draw_line(Vector2(px, py), Vector2(px + rng.randf_range(-14, 14), py + rng.randf_range(6, 20)), rc.darkened(0.25), 2.0)
 			draw_rect(Rect2(r.position.x, r.end.y - 8, r.size.x, 8), Color(0, 0, 0, 0.12))
+		"deck":
+			# war-boat deck: planking over a dark hull (the river is drawn over the lower hull)
+			var hull := Color("4a2f1c")
+			draw_rect(r, hull)
+			draw_rect(Rect2(r.position, Vector2(r.size.x, 12)), Color("9a6a3a"))
+			var px0 := r.position.x
+			while px0 < r.end.x:
+				draw_line(Vector2(px0, r.position.y), Vector2(px0, r.position.y + 12), Color("6b4428"), 1.5)
+				px0 += 38.0
+			draw_line(Vector2(r.position.x, r.position.y + 26), Vector2(r.end.x, r.position.y + 26), Color("c9a14a"), 2.0)
+			for i in int(r.size.x / 120.0):
+				draw_circle(Vector2(r.position.x + 60 + i * 120, r.position.y + 36), 7.0, Color("7a5030"))
 		_:
-			var earth := Color("b8864e") if style != "ochre" else Color("cf9c3c")
+			var cols: Array = {
+				"ochre": [Color("cf9c3c"), Color("e2b552"), Color("a99a4a"), Color("c9b067")],
+				"basalt": [Color("4e4a4c"), Color("5f8a4a"), Color("5a9a48"), Color("8fb860")],
+				"grass": [Color("7a5a3a"), Color("5a9a48"), Color("4f9a44"), Color("9ad06a")],
+			}.get(style, [Color("b8864e"), Color("c89a5c"), Color("a99a4a"), Color("c9b067")])
+			var earth: Color = cols[0]
 			draw_rect(r, earth)
-			draw_rect(Rect2(r.position, Vector2(r.size.x, 10)), Color("c89a5c") if style != "ochre" else Color("e2b552"))
+			draw_rect(Rect2(r.position, Vector2(r.size.x, 10)), cols[1])
 			for i in int(r.size.x / 40.0):
 				var px := r.position.x + rng.randf_range(0, r.size.x)
 				var py := r.position.y + rng.randf_range(18, minf(r.size.y, 200))
@@ -119,7 +136,7 @@ func _draw() -> void:
 			var gx := r.position.x
 			while gx < r.end.x:
 				var gh := rng.randf_range(5, 14)
-				var gc := Color("a99a4a").lerp(Color("c9b067"), rng.randf())
+				var gc: Color = (cols[2] as Color).lerp(cols[3], rng.randf())
 				draw_line(Vector2(gx, r.position.y + 2), Vector2(gx - 3, r.position.y - gh), gc, 2.0)
 				draw_line(Vector2(gx + 3, r.position.y + 2), Vector2(gx + 6, r.position.y - gh * 0.7), gc, 2.0)
 				gx += rng.randf_range(14, 40)

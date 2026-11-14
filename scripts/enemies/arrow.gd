@@ -6,6 +6,7 @@ var team := "imperial"
 var damage := 9.0
 var velocity := Vector2(600, 0)
 var shooter: Node2D
+var style := "arrow"   ## arrow | ball (musket shot: flat and fast)
 var _life := 3.0
 var _stuck := false
 
@@ -32,7 +33,8 @@ func _physics_process(delta: float) -> void:
 	if _stuck:
 		modulate.a = minf(1.0, _life)
 		return
-	velocity.y += 380.0 * delta
+	if style == "arrow":
+		velocity.y += 380.0 * delta
 	position += velocity * delta
 	rotation = velocity.angle()
 
@@ -53,6 +55,10 @@ func _on_body(b: Node) -> void:
 
 
 func _draw() -> void:
+	if style == "ball":
+		draw_line(Vector2(-22, 0), Vector2(0, 0), Color(1, 0.9, 0.6, 0.5), 2.0)
+		draw_circle(Vector2.ZERO, 3.5, Color("2a2a2e"))
+		return
 	draw_line(Vector2(-13, 0), Vector2(11, 0), Color("6b4428"), 2.0)
 	draw_colored_polygon(PackedVector2Array([Vector2(11, -3), Vector2(17, 0), Vector2(11, 3)]), Color("b8bec6"))
 	draw_line(Vector2(-13, 0), Vector2(-17, -3), Color("e8e2d0"), 2.0)

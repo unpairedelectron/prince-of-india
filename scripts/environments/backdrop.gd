@@ -13,7 +13,7 @@ var _t := 0.0
 
 
 func _process(delta: float) -> void:
-	if kind == "troops":
+	if kind in ["troops", "river", "fleet"]:
 		_t += delta
 		queue_redraw()
 
@@ -33,6 +33,87 @@ func _draw() -> void:
 		"troops": _troops(rng)
 		"forest": _forest(rng)
 		"rocks": _rocks(rng)
+		"ghats": _ghats(rng)
+		"river": _river(rng)
+		"fortline": _fortline(rng)
+		"fleet": _fleet(rng)
+
+
+## Sahyadri: stepped, flat-topped basalt mesas, some crowned with a fort wall.
+func _ghats(rng: RandomNumberGenerator) -> void:
+	var col := Color("7f9a8e") * tint
+	var pts := PackedVector2Array([Vector2(-200, base_y + 400)])
+	var x := -200.0
+	var forts: Array = []
+	while x < width + 200.0:
+		var h := rng.randf_range(120, 300)
+		var w := rng.randf_range(160, 420)
+		pts.append(Vector2(x, base_y - h * 0.45))
+		pts.append(Vector2(x + 30, base_y - h * 0.5))
+		pts.append(Vector2(x + 60, base_y - h))
+		pts.append(Vector2(x + w, base_y - h))
+		pts.append(Vector2(x + w + 40, base_y - h * 0.55))
+		if rng.randf() < 0.3 and w > 240.0:
+			forts.append(Rect2(x + 80, base_y - h - 14, w - 110, 14))
+		x += w + rng.randf_range(60, 200)
+	pts.append(Vector2(width + 200.0, base_y + 400))
+	draw_colored_polygon(pts, col)
+	for f in forts:
+		draw_rect(f, col.darkened(0.18))
+		draw_rect(Rect2(f.position.x + f.size.x * 0.4, f.position.y - 12, 26, 12), col.darkened(0.18))
+	draw_rect(Rect2(-200, base_y - 60, width + 400, 460), Color(0.85, 0.95, 0.9, 0.2))
+
+
+## A broad river: flat water band with slow glints.
+func _river(rng: RandomNumberGenerator) -> void:
+	var c := Color("4f8a9a") * tint
+	draw_rect(Rect2(-200, base_y - 46, width + 400, 500), c)
+	draw_rect(Rect2(-200, base_y - 50, width + 400, 6), c.lightened(0.25))
+	for i in int(width / 90.0):
+		var x := rng.randf_range(0, width)
+		var y := base_y - 36.0 + rng.randf_range(0, 110)
+		var w := rng.randf_range(20, 70)
+		var a := 0.25 + 0.2 * sin(_t * 1.3 + i)
+		draw_line(Vector2(x, y), Vector2(x + w, y), Color(1, 1, 1, a), 2.0)
+
+
+## Long fortified ridge: curtain wall, round bastions, a palace block and domed kiosks.
+func _fortline(rng: RandomNumberGenerator) -> void:
+	var c := Color("b08a62") * tint
+	draw_rect(Rect2(-200, base_y - 90, width + 400, 500), c.darkened(0.12))
+	var x := -100.0
+	while x < width + 100.0:
+		var w := rng.randf_range(260, 520)
+		draw_rect(Rect2(x, base_y - 150, w, 70), c)
+		var mx := x
+		while mx < x + w:
+			draw_rect(Rect2(mx, base_y - 160, 12, 10), c)
+			mx += 24.0
+		draw_rect(Rect2(x + w - 40, base_y - 190, 70, 110), c.lightened(0.04))
+		draw_circle(Vector2(x + w - 5, base_y - 190), 35, c.lightened(0.04))
+		if rng.randf() < 0.45:
+			var px := x + w * 0.35
+			draw_rect(Rect2(px, base_y - 230, 120, 80), c.lightened(0.07))
+			draw_circle(Vector2(px + 60, base_y - 230), 26, c.lightened(0.1))
+			for k in 3:
+				draw_rect(Rect2(px + 16 + k * 36, base_y - 205, 14, 26), c.darkened(0.3))
+		x += w + 30.0
+
+
+## Distant war boats on the river (no insignia), rocking gently.
+func _fleet(rng: RandomNumberGenerator) -> void:
+	var x := 100.0
+	var i := 0
+	while x < width:
+		var y := base_y + rng.randf_range(-20, 30) + sin(_t * 1.2 + i) * 3.0
+		var s := rng.randf_range(0.7, 1.3)
+		var hull := Color("3a2a22") * tint
+		draw_colored_polygon(PackedVector2Array([Vector2(x - 60 * s, y), Vector2(x + 60 * s, y), Vector2(x + 44 * s, y + 16 * s), Vector2(x - 44 * s, y + 16 * s)]), hull)
+		draw_line(Vector2(x - 60 * s, y), Vector2(x - 74 * s, y - 14 * s), hull, 4.0)
+		draw_line(Vector2(x, y), Vector2(x, y - 56 * s), hull, 3.0)
+		draw_colored_polygon(PackedVector2Array([Vector2(x + 2, y - 54 * s), Vector2(x + 40 * s, y - 34 * s), Vector2(x + 2, y - 14 * s)]), Color(0.9, 0.85, 0.75, 0.85) * tint)
+		x += rng.randf_range(260, 620)
+		i += 1
 
 
 func _ridge(rng: RandomNumberGenerator, height: float, var_h: float, col: Color, freq: float) -> void:

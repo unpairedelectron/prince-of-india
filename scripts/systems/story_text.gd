@@ -82,6 +82,6 @@ const MISSION_3_OUTRO := [
 	{
 		"tag": HISTORY,
 		"title": "After 1576",
-		"body": "Pratap regrouped in the hills. In 1582 his forces took the imperial post at Dewair - the next chapter, The Return of Mewar, is in development.",
+		"body": "Pratap did not surrender. He regrouped in the Aravalli hills, and the struggle for Mewar went on.",
 	},
 ]

@@ -33,7 +33,6 @@ func _init() -> void:
 	horse_home = L.HORSE_HOME
 	start_objective = "Ride for the hills. Carry Pratap to safety."
 	outro_story = StoryText.MISSION_3_OUTRO
-	next_scene = Game.SCENE_MENU
 
 
 func _build_mission() -> void:
