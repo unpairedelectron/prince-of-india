@@ -1,0 +1,48 @@
+; Engine configuration file.
+config_version=5
+
+[application]
+
+config/name="Prince of India: Maharana Pratap - The Defender of Mewar"
+config/description="2D side-scrolling action-adventure MVP. Mission 1: The Oath of Mewar (Gogunda, 1572)."
+run/main_scene="res://scenes/menus/main_menu.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+boot_splash/bg_color=Color(0.12, 0.08, 0.06, 1)
+config/icon="res://assets/ui/icon.png"
+
+[autoload]
+
+Game="*res://scripts/managers/game.gd"
+Audio="*res://scripts/managers/audio.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=4
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[layer_names]
+
+2d_physics/layer_1="world"
+2d_physics/layer_2="player"
+2d_physics/layer_3="enemy"
+2d_physics/layer_4="horse"
+2d_physics/layer_5="hazard"
+2d_physics/layer_6="interact"
+
+[physics]
+
+common/physics_ticks_per_second=60
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=1
+environment/defaults/default_clear_color=Color(0.12, 0.08, 0.06, 1)

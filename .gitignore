@@ -1,0 +1,7 @@
+# Godot 4 import cache and build output
+.godot/
+*.translation
+build/
+*.apk
+*.aab
+*.keystore

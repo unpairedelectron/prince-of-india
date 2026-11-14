@@ -1,0 +1,697 @@
+{
+  "pack_name": "Prince of India \u2013 Mewar 2D Asset Pack v1",
+  "version": "1.0.0",
+  "target_engine": "Godot 4.x (also usable in other 2D engines)",
+  "art_style": "Original stylized 2D vector game art, rasterized to transparent PNG atlases",
+  "assets": {
+    "maharana_pratap": {
+      "path": "Characters/Maharana_Pratap/maharana_pratap_4x8_spritesheet.png",
+      "frame_size": [
+        128,
+        160
+      ],
+      "columns": 4,
+      "rows": 8,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        "run": {
+          "row": 2,
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        "jump": {
+          "row": 3,
+          "frames": 4,
+          "fps": 10,
+          "loop": false
+        },
+        "attack": {
+          "row": 4,
+          "frames": 4,
+          "fps": 10,
+          "loop": false
+        },
+        "block": {
+          "row": 5,
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        "hurt": {
+          "row": 6,
+          "frames": 4,
+          "fps": 10,
+          "loop": false
+        },
+        "victory": {
+          "row": 7,
+          "frames": 4,
+          "fps": 10,
+          "loop": false
+        }
+      }
+    },
+    "chetak": {
+      "path": "Characters/Chetak/chetak_4x4_spritesheet.png",
+      "frame_size": [
+        192,
+        128
+      ],
+      "columns": 4,
+      "rows": 4,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 7,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        "gallop": {
+          "row": 2,
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        },
+        "jump": {
+          "row": 3,
+          "frames": 4,
+          "fps": 10,
+          "loop": true
+        }
+      }
+    },
+    "imperial_soldier": {
+      "path": "Characters/Enemies/imperial_soldier_4x4_spritesheet.png",
+      "frame_size": [
+        128,
+        160
+      ],
+      "columns": 4,
+      "rows": 4,
+      "animations": {
+        "idle": {
+          "row": 0,
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        "walk": {
+          "row": 1,
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        "attack": {
+          "row": 2,
+          "frames": 4,
+          "fps": 8,
+          "loop": true
+        },
+        "hurt": {
+          "row": 3,
+          "frames": 4,
+          "fps": 8,
+          "loop": false
+        }
+      }
+    },
+    "mewar_fort_tileset": {
+      "path": "Environment/Tilesets/mewar_fort_tileset_8x5.png",
+      "tile_size": [
+        64,
+        64
+      ],
+      "columns": 8,
+      "rows": 6,
+      "tiles": [
+        {
+          "name": "stone_floor_a",
+          "atlas_rect": [
+            0,
+            0,
+            64,
+            64
+          ],
+          "cell": [
+            0,
+            0
+          ]
+        },
+        {
+          "name": "stone_floor_b",
+          "atlas_rect": [
+            64,
+            0,
+            64,
+            64
+          ],
+          "cell": [
+            1,
+            0
+          ]
+        },
+        {
+          "name": "sandstone_floor",
+          "atlas_rect": [
+            128,
+            0,
+            64,
+            64
+          ],
+          "cell": [
+            2,
+            0
+          ]
+        },
+        {
+          "name": "dark_stone",
+          "atlas_rect": [
+            192,
+            0,
+            64,
+            64
+          ],
+          "cell": [
+            3,
+            0
+          ]
+        },
+        {
+          "name": "sandstone_brick",
+          "atlas_rect": [
+            256,
+            0,
+            64,
+            64
+          ],
+          "cell": [
+            4,
+            0
+          ]
+        },
+        {
+          "name": "rough_stone",
+          "atlas_rect": [
+            320,
+            0,
+            64,
+            64
+          ],
+          "cell": [
+            5,
+            0
+          ]
+        },
+        {
+          "name": "pale_stone",
+          "atlas_rect": [
+            384,
+            0,
+            64,
+            64
+          ],
+          "cell": [
+            6,
+            0
+          ]
+        },
+        {
+          "name": "brown_stone",
+          "atlas_rect": [
+            448,
+            0,
+            64,
+            64
+          ],
+          "cell": [
+            7,
+            0
+          ]
+        },
+        {
+          "name": "brick_wall_a",
+          "atlas_rect": [
+            0,
+            64,
+            64,
+            64
+          ],
+          "cell": [
+            0,
+            1
+          ]
+        },
+        {
+          "name": "brick_wall_b",
+          "atlas_rect": [
+            64,
+            64,
+            64,
+            64
+          ],
+          "cell": [
+            1,
+            1
+          ]
+        },
+        {
+          "name": "sandstone_wall",
+          "atlas_rect": [
+            128,
+            64,
+            64,
+            64
+          ],
+          "cell": [
+            2,
+            1
+          ]
+        },
+        {
+          "name": "fort_masonry",
+          "atlas_rect": [
+            192,
+            64,
+            64,
+            64
+          ],
+          "cell": [
+            3,
+            1
+          ]
+        },
+        {
+          "name": "block_wall",
+          "atlas_rect": [
+            256,
+            64,
+            64,
+            64
+          ],
+          "cell": [
+            4,
+            1
+          ]
+        },
+        {
+          "name": "carved_wall",
+          "atlas_rect": [
+            320,
+            64,
+            64,
+            64
+          ],
+          "cell": [
+            5,
+            1
+          ]
+        },
+        {
+          "name": "weathered_brick",
+          "atlas_rect": [
+            384,
+            64,
+            64,
+            64
+          ],
+          "cell": [
+            6,
+            1
+          ]
+        },
+        {
+          "name": "old_wall",
+          "atlas_rect": [
+            448,
+            64,
+            64,
+            64
+          ],
+          "cell": [
+            7,
+            1
+          ]
+        },
+        {
+          "name": "wall_cap",
+          "atlas_rect": [
+            0,
+            128,
+            64,
+            64
+          ],
+          "cell": [
+            0,
+            2
+          ]
+        },
+        {
+          "name": "wood_door",
+          "atlas_rect": [
+            64,
+            128,
+            64,
+            64
+          ],
+          "cell": [
+            1,
+            2
+          ]
+        },
+        {
+          "name": "arched_door",
+          "atlas_rect": [
+            128,
+            128,
+            64,
+            64
+          ],
+          "cell": [
+            2,
+            2
+          ]
+        },
+        {
+          "name": "fort_gate",
+          "atlas_rect": [
+            192,
+            128,
+            64,
+            64
+          ],
+          "cell": [
+            3,
+            2
+          ]
+        },
+        {
+          "name": "column_base",
+          "atlas_rect": [
+            256,
+            128,
+            64,
+            64
+          ],
+          "cell": [
+            4,
+            2
+          ]
+        },
+        {
+          "name": "stone_ledge",
+          "atlas_rect": [
+            320,
+            128,
+            64,
+            64
+          ],
+          "cell": [
+            5,
+            2
+          ]
+        },
+        {
+          "name": "ladder_tile",
+          "atlas_rect": [
+            384,
+            128,
+            64,
+            64
+          ],
+          "cell": [
+            6,
+            2
+          ]
+        },
+        {
+          "name": "rope_detail",
+          "atlas_rect": [
+            448,
+            128,
+            64,
+            64
+          ],
+          "cell": [
+            7,
+            2
+          ]
+        },
+        {
+          "name": "spikes_a",
+          "atlas_rect": [
+            0,
+            192,
+            64,
+            64
+          ],
+          "cell": [
+            0,
+            3
+          ]
+        },
+        {
+          "name": "spikes_b",
+          "atlas_rect": [
+            64,
+            192,
+            64,
+            64
+          ],
+          "cell": [
+            1,
+            3
+          ]
+        },
+        {
+          "name": "spikes_c",
+          "atlas_rect": [
+            128,
+            192,
+            64,
+            64
+          ],
+          "cell": [
+            2,
+            3
+          ]
+        },
+        {
+          "name": "spikes_d",
+          "atlas_rect": [
+            192,
+            192,
+            64,
+            64
+          ],
+          "cell": [
+            3,
+            3
+          ]
+        },
+        {
+          "name": "pressure_plate",
+          "atlas_rect": [
+            256,
+            192,
+            64,
+            64
+          ],
+          "cell": [
+            4,
+            3
+          ]
+        },
+        {
+          "name": "wood_platform",
+          "atlas_rect": [
+            320,
+            192,
+            64,
+            64
+          ],
+          "cell": [
+            5,
+            3
+          ]
+        },
+        {
+          "name": "gate_panel",
+          "atlas_rect": [
+            384,
+            192,
+            64,
+            64
+          ],
+          "cell": [
+            6,
+            3
+          ]
+        },
+        {
+          "name": "platform_edge",
+          "atlas_rect": [
+            448,
+            192,
+            64,
+            64
+          ],
+          "cell": [
+            7,
+            3
+          ]
+        },
+        {
+          "name": "rock_slope",
+          "atlas_rect": [
+            0,
+            256,
+            64,
+            64
+          ],
+          "cell": [
+            0,
+            4
+          ]
+        },
+        {
+          "name": "boulder",
+          "atlas_rect": [
+            64,
+            256,
+            64,
+            64
+          ],
+          "cell": [
+            1,
+            4
+          ]
+        },
+        {
+          "name": "sandbag_wall",
+          "atlas_rect": [
+            128,
+            256,
+            64,
+            64
+          ],
+          "cell": [
+            2,
+            4
+          ]
+        },
+        {
+          "name": "rubble",
+          "atlas_rect": [
+            192,
+            256,
+            64,
+            64
+          ],
+          "cell": [
+            3,
+            4
+          ]
+        }
+      ]
+    },
+    "props": {
+      "path": "Environment/Props/mewar_props_4x4.png",
+      "cell_size": [
+        128,
+        128
+      ],
+      "columns": 4,
+      "rows": 4,
+      "items": [
+        "torch",
+        "banner",
+        "crate",
+        "barrel",
+        "pot",
+        "rock",
+        "bush",
+        "tree",
+        "spikes",
+        "ladder",
+        "bridge",
+        "chest",
+        "health_potion",
+        "coin",
+        "key",
+        "checkpoint"
+      ]
+    },
+    "effects": {
+      "path": "Effects/combat_effects_4x4.png",
+      "cell_size": [
+        96,
+        96
+      ],
+      "columns": 4,
+      "rows": 4,
+      "rows_by_effect": [
+        "slash",
+        "spark",
+        "dust",
+        "fire"
+      ]
+    },
+    "ui_icons": {
+      "path": "UI/mewar_ui_icons_4x4.png",
+      "cell_size": [
+        96,
+        96
+      ],
+      "columns": 4,
+      "rows": 4,
+      "items": [
+        "heart",
+        "sword",
+        "shield",
+        "jump",
+        "left",
+        "right",
+        "pause",
+        "play",
+        "horse",
+        "coin",
+        "key",
+        "map",
+        "home",
+        "settings",
+        "sound",
+        "interact"
+      ]
+    },
+    "backgrounds": [
+      "Environment/Backgrounds/kumbhalgarh_parallax.png",
+      "Environment/Backgrounds/haldighati_parallax.png",
+      "Environment/Backgrounds/aravalli_forest_parallax.png"
+    ]
+  },
+  "notes": [
+    "PNG atlases use transparent backgrounds where appropriate.",
+    "All sprite atlas coordinates are zero-based.",
+    "Characters are side-view and initially face right.",
+    "Animation strips are also provided separately for convenience.",
+    "Background images are 1600x600 and intended for parallax or scaled use."
+  ]
+}
