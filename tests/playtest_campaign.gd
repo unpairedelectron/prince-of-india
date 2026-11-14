@@ -5,6 +5,7 @@ extends "res://tests/bot_base.gd"
 ## proves each level can be finished and its systems fire, not that it is easy.
 
 const SPEED := 3.0
+var _air_mode := ""
 
 
 func _ready() -> void:
@@ -46,7 +47,8 @@ func _play(id: String) -> void:
 	var last_x := p.global_position.x
 	var stuck := 0.0
 	var limit := 900.0
-	while not m._complete and t < limit:
+	var next_status := 60.0
+	while not m._complete and t < limit and m.retries < 30 and m._elapsed < 1200.0:
 		if Engine.time_scale == 1.0:
 			Engine.time_scale = SPEED
 		if m._respawning or p.state == Player.State.DEAD or p.state == Player.State.LOCKED or not p.input_enabled:
@@ -72,6 +74,13 @@ func _play(id: String) -> void:
 		await _step()
 		await get_tree().physics_frame
 		t += 1.0 / 60.0
+		if m._elapsed >= next_status:
+			next_status += 60.0
+			var alive := 0
+			for s in get_tree().get_nodes_in_group("imperial"):
+				if s.visible and s.state != Soldier.S.DEFEATED and absf(s.global_position.x - p.global_position.x) < 1500.0:
+					alive += 1
+			print("status %s t=%.0f x=%.0f y=%.0f %s retries=%d arenas=%s foes_near=%d" % [id, m._elapsed, p.global_position.x, p.global_position.y, p.state_name(), m.retries, m.arena_state, alive])
 		if OS.has_environment("BOT_TRACE") and Engine.get_physics_frames() % 240 == 0:
 			print("trace t=%.0f x=%.0f y=%.0f %s floor=%s wall=%s vx=%.0f" % [m._elapsed, p.global_position.x, p.global_position.y, p.state_name(), p.is_on_floor(), p.is_on_wall(), p.velocity.x])
 		if absf(p.global_position.x - last_x) > 60.0:
@@ -132,8 +141,11 @@ func _step() -> void:
 	release("move_up")
 	var e := nearest_imperial(90.0)
 	if e and absf(e.global_position.x - px) < 300.0 and p.is_on_floor():
-		await fight_step(e)
-		return
+		# only close in if there is ground between us; otherwise cross the gap first
+		var toward := signf(e.global_position.x - px)
+		if absf(e.global_position.x - px) < 70.0 or not _ray(px + 24.0 * toward, py - 20.0, py + 90.0).is_empty():
+			await fight_step(e)
+			return
 	release("block")
 	if p.near_ladder() and p.is_on_floor() and p.is_on_wall():
 		release("move_right")
@@ -149,9 +161,16 @@ func _step() -> void:
 					release("move_right")
 					return
 	if not p.is_on_floor():
-		press("move_right")
+		# air control: after a gap jump, stop pushing once there is ground to drop onto
+		var over := _air_mode == "gap" and p.velocity.y > -250.0 and not _ray(px + p.velocity.x * 0.1, py - 10.0, py + 240.0).is_empty()
+		if over:
+			release("move_right")
+		else:
+			press("move_right")
 		return
+	_air_mode = ""
 	if p.is_on_wall():
+		_air_mode = "wall"
 		press("move_right")
 		press("jump")
 		await wait(0.28)
@@ -161,20 +180,39 @@ func _step() -> void:
 		var land := _landing()
 		var d: float = land[0]
 		var speed := absf(p.velocity.x)
-		var ok := d <= (185.0 if speed > 230.0 else 95.0)
+		var running := speed > 230.0
+		var ok := d <= (185.0 if running else 110.0)
+		var mine := 0.0
+		var under := _ray(px - 10.0, py - 10.0, py + 20.0)
+		var on_mover: bool = not under.is_empty() and under.collider is MovingPlatform
+		if on_mover:
+			mine = (under.collider as MovingPlatform).vel_x()
+			if mine < -20.0:
+				ok = false   # never leap off a raft that is carrying us backwards
 		if ok and land[1] is MovingPlatform:
-			var mine := 0.0
-			var under := _ray(px, py - 10.0, py + 20.0)
-			if not under.is_empty() and under.collider is MovingPlatform:
-				mine = (under.collider as MovingPlatform).vel_x()
-			ok = (land[1] as MovingPlatform).vel_x() - mine < 50.0 and d < 100.0
-		if OS.has_environment("BOT_TRACE"):
-			print("edge x=%.0f y=%.0f d=%.0f speed=%.0f ok=%s state=%s" % [px, py, d, speed, ok, p.state_name()])
+			ok = (land[1] as MovingPlatform).vel_x() - mine < 40.0 and d < 100.0
+			running = false
+		if OS.has_environment("BOT_TRACE") and (ok or mine != 0.0):
+			var mv := ""
+			for mo in get_tree().get_nodes_in_group("mover"):
+				if absf(mo.global_position.x - px) < 700.0:
+					mv += " mover[%.0f v%.0f]" % [mo.global_position.x, mo.vel_x()]
+			print("jump x=%.0f y=%.0f d=%.0f speed=%.0f running=%s target=%s%s" % [px, py, d, speed, running, land[1], mv])
 		if ok:
+			_air_mode = "gap"
 			press("move_right")
 			press("jump")
-			await wait(0.3 if d > 70.0 else 0.08)
+			# running start: full jump over a real gap; standing start: a hop sized to the gap
+			await wait((0.3 if d > 70.0 else 0.08) if running else (0.18 if d > 75.0 else 0.07))
 			release("jump")
+		elif d <= 185.0 and not (land[1] is MovingPlatform) and not on_mover and speed < 60.0:
+			# too far for a standing jump: step back and take a run-up
+			release("move_right")
+			press("move_left")
+			await wait(0.7)
+			release("move_left")
+			press("move_right")
+			await wait(0.35)
 		else:
 			release("move_right")
 			if p.velocity.x > 40.0 and _ray(px + 8.0, py - 20.0, py + 90.0).is_empty():

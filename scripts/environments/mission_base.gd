@@ -431,6 +431,9 @@ func _on_checkpoint(cp: Checkpoint) -> void:
 
 
 func _on_fell(body: Node) -> void:
+	if body is Soldier:
+		(body as Soldier).health.damage(9999.0)   # a soldier knocked into a pit is out of the fight
+		return
 	if _respawning or _complete:
 		return
 	if body is Player or (body is Horse and (body as Horse).rider != null):

@@ -109,13 +109,13 @@ func is_ranged() -> bool:
 ## Difficulty scaling (MissionBase.tier): later levels hit harder and attack sooner.
 func apply_tier(t: float, scale_health := true) -> void:
 	var k := maxf(0.0, t - 1.0)
-	attack_damage *= 1.0 + 0.09 * k
-	telegraph_time *= maxf(0.62, 1.0 - 0.05 * k)
-	recover_time *= maxf(0.6, 1.0 - 0.05 * k)
-	attack_cooldown *= maxf(0.55, 1.0 - 0.07 * k)
+	attack_damage *= 1.0 + 0.07 * k
+	telegraph_time *= maxf(0.72, 1.0 - 0.04 * k)   # never faster than a player can read
+	recover_time *= maxf(0.7, 1.0 - 0.04 * k)
+	attack_cooldown *= maxf(0.65, 1.0 - 0.05 * k)
 	move_speed *= 1.0 + 0.03 * k
 	if scale_health:
-		max_health *= 1.0 + 0.13 * k
+		max_health *= 1.0 + 0.12 * k
 		health.max_health = max_health
 		health.current = max_health
 
@@ -201,6 +201,8 @@ func _physics_process(delta: float) -> void:
 	_t += delta
 	_cooldown = maxf(0.0, _cooldown - delta)
 	_retarget -= delta
+	if not is_instance_valid(target):
+		target = null   # e.g. an arena unit freed on respawn
 	if _retarget <= 0.0 or not _target_valid(target):
 		target = _find_target()
 		player = target

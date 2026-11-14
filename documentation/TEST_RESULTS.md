@@ -1,5 +1,47 @@
 # Test results
-Engine: Godot 4.3-stable (Linux), gl_compatibility renderer. Tests run under Xvfb with an OpenGL window (Mesa llvmpipe), 1280x720.
+
+Engine: Godot 4.3-stable (Linux), gl_compatibility renderer, under Xvfb (Mesa llvmpipe), 1280x720.
+
+## Milestone 4: four heroes, twenty levels (14 Nov 2026)
+| Suite | Result |
+|---|---|
+| `tests/smoke.tscn`: all 17 data-driven levels build; all 20 levels load; menu, hero select, level select open | pass, no script errors |
+| `tests/playtest_campaign.tscn`: bot plays all 17 data-driven levels start to finish | **all 17 completed**; every arena fought, all 9 bosses beaten, Lakshmibai's mounted finale ridden, stars saved, next level unlocked |
+| `tests/playtest.tscn` (Mission 1) | 50/50 run alone |
+| `tests/playtest_m2.tscn` / `playtest_m3.tscn` | 21/21, 15/15 |
+| `tests/asset_test.tscn` | 35/35 run alone |
+
+Bot run (game seconds / falls+defeats), last passing run of each level:
+Pratap 4: 194 / 1, Pratap 5: 270 / 2 | Shivaji 1-5: 57 / 0, 109 / 0, 149 / 0, 199 / 0, 356 / 1 |
+Lakshmibai 1-5: 83 / 0, 235 / 0, 210 / 0, 144 / 0, 354 / 0 | Lachit 1-5: 76 / 0, 135 / 0, 159 / 0, 173 / 0, 251 / 0.
+
+### What these numbers do and do not show
+- **The bot heals itself** whenever its health drops below 45, and it never dodges. A completed run proves the level can
+  be traversed and its systems work. It says nothing reliable about difficulty for a person.
+- Even with self-healing the bot was defeated 1-2 times in several tier-5 levels and, before the last tuning pass,
+  7 times in Lakshmibai 5. Late levels are probably **too hard for most players as they stand** and need hand tuning.
+- A human will take roughly 2-4x the bot's time: an estimated 3-12 minutes a level, not measured.
+- `playtest.tscn` and `asset_test.tscn` each failed 1-2 timing checks (multi-touch jump, hurt animation) when four
+  Godot processes ran at once on this 4-core machine, and passed when run alone. The multi-touch check was already
+  recorded as intermittent in Milestone 3.
+
+### Bugs found and fixed by the bot
+- A step or wall placed directly after a pit left no landing ground (unreachable ledge): the builder now guarantees
+  180 px of flat ground after every pit.
+- Stepping-stone pillars were narrower than a sprint jump, so sprinting overshot them: widened to 200 px, gaps capped at 140.
+- Soldiers that walked into a pit fell forever; they are now retired.
+- A soldier whose target was freed on respawn raised a script error every frame.
+- Torches at negative x requested a negative animation frame (engine error spam).
+
+### Not verified
+- Android build and on-device behaviour: still not built or run.
+- Audio playback (no sound device here; files load).
+- Level select, hero unlocks and the star panel were exercised by scripts and screenshots, not by hand.
+- Historical text for the three new heroes: not source-checked (see HISTORICAL_REFERENCES.md).
+
+---
+
+# Earlier milestones
 
 ## Milestone 3: Mewar 2D Asset Pack v1 integration (14 Nov 2026)
 | Suite | Result |

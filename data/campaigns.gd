@@ -119,7 +119,7 @@ const THEMES := {
 		"terrain": "fort", "sky": [Color("8fb4d6"), Color("efd3a0"), Color("f6dfb2")], "grade": Color(1.02, 0.98, 0.92),
 		"parallax": [
 			[Vector2(0.05, 0.08), "bg:kumbhalgarh_parallax", 82.0, 85, -55, Color(0.95, 0.9, 0.9)],
-			[Vector2(0.2, 0.3), "fortline", 120.0, 71, -48, Color(0.85, 0.75, 0.7)],
+			[Vector2(0.2, 0.3), "fortline", 330.0, 71, -48, Color(0.85, 0.75, 0.7)],
 			[Vector2(0.4, 0.6), "town", 70.0, 23, -42],
 			[Vector2(1.25, 1.0), "foreground", 210.0, 19, 30],
 		],
@@ -130,7 +130,7 @@ const THEMES := {
 		"terrain": "fort", "sky": [Color("5a5560"), Color("c98a5a"), Color("e6a868")], "grade": Color(1.0, 0.86, 0.76),
 		"parallax": [
 			[Vector2(0.05, 0.08), "bg:kumbhalgarh_parallax", 82.0, 85, -55, Color(0.8, 0.62, 0.55)],
-			[Vector2(0.2, 0.3), "fortline", 120.0, 71, -48, Color(0.6, 0.45, 0.42)],
+			[Vector2(0.2, 0.3), "fortline", 330.0, 71, -48, Color(0.6, 0.45, 0.42)],
 			[Vector2(0.32, 0.55), "troops", 70.0, 13, -44],
 			[Vector2(1.25, 1.0), "foreground", 210.0, 19, 30],
 		],
@@ -141,7 +141,7 @@ const THEMES := {
 		"terrain": "ground", "sky": [Color("121830"), Color("34304e"), Color("584858")], "grade": Color(0.62, 0.68, 0.92),
 		"parallax": [
 			[Vector2(0.05, 0.08), "far_hills", 120.0, 31, -55, Color(0.35, 0.38, 0.6)],
-			[Vector2(0.2, 0.3), "fortline", 120.0, 71, -48, Color(0.3, 0.3, 0.48)],
+			[Vector2(0.2, 0.3), "fortline", 330.0, 71, -48, Color(0.3, 0.3, 0.48)],
 			[Vector2(0.45, 0.7), "rocks", 70.0, 17, -40, Color(0.5, 0.5, 0.7)],
 			[Vector2(1.25, 1.0), "foreground", 210.0, 19, 30],
 		],
@@ -152,7 +152,7 @@ const THEMES := {
 		"terrain": "ochre", "sky": [Color("c8a070"), Color("eab868"), Color("f4d090")], "grade": Color(1.06, 0.95, 0.82),
 		"parallax": [
 			[Vector2(0.05, 0.08), "far_hills", 120.0, 33, -55, Color(1.0, 0.85, 0.7)],
-			[Vector2(0.2, 0.3), "fortline", 150.0, 77, -48, Color(0.95, 0.75, 0.6)],
+			[Vector2(0.2, 0.3), "fortline", 340.0, 77, -48, Color(0.95, 0.75, 0.6)],
 			[Vector2(0.32, 0.55), "troops", 70.0, 13, -44],
 			[Vector2(1.25, 1.0), "foreground", 210.0, 19, 30],
 		],
@@ -489,7 +489,7 @@ const LEVELS := {
 		],
 		"outro": [
 			{"tag": H, "title": "17 June 1858", "body": "Dressed as a cavalry soldier, Rani Lakshmibai was killed in the fighting at Kotah-ki-Serai. She was about thirty years old. Her opponent Hugh Rose called her the best and bravest of the rebel leaders."},
-			{"tag": H, "title": "After", "body": "Jhansi was not hers again. But the ballad every Indian schoolchild learns still ends the same way: she fought like a man, she was the Rani of Jhansi."},
+			{"tag": H, "title": "After", "body": "Jhansi was not hers again. But Subhadra Kumari Chauhan's poem, learned by generations of schoolchildren, keeps the refrain: bravely she fought - she was the Rani of Jhansi."},
 			{"tag": F, "title": "A legend complete", "body": "You have finished Rani Lakshmibai's story. Other legends are waiting."},
 		],
 		"segments": [
@@ -499,9 +499,9 @@ const LEVELS := {
 			["foes", [["armoured", 280], ["spear", 500], ["musket", 800]], 1000], ["crumble", 4], ["run", 220], ["stairs", 3, -85, 180], ["supply"], ["cp"],
 			["volley", 1000, "shells"], ["pillars", 4, 155], ["foes", [["armoured", 260], ["armoured", 480], ["musket", 760]], 950], ["spikes", 4], ["leaf", -150], ["cp"],
 			["allies", [["sword", 60], ["sword", 140]]],
-			["arena", [[["sword", 0.55], ["spear", 0.75], ["musket", 0.95]], [["armoured", 0.6], ["sword", 0.78], ["musket", 0.9], ["musket", 0.97]], [["armoured", 0.55], ["armoured", 0.72], ["spear", 0.85], ["musket", 0.97]]], 1200],
+			["arena", [[["sword", 0.55], ["spear", 0.75], ["musket", 0.95]], [["armoured", 0.6], ["sword", 0.78], ["musket", 0.95]], [["armoured", 0.55], ["sword", 0.72], ["spear", 0.85], ["musket", 0.97]]], 1200],
 			["cp"], ["supply"], ["obj", "Meet the cavalry charge."],
-			["boss", {"name": "Officer of the Hussars", "hp": 430.0, "adds": [["musket", 0.96], ["sword", 0.85]]}, 1150],
+			["boss", {"name": "Officer of the Hussars", "hp": 400.0, "adds": [["musket", 0.96]]}, 1150],
 			["run", 500],
 		],
 	},
@@ -597,7 +597,7 @@ const LEVELS := {
 		"theme": "brahmaputra", "tier": 5, "objective": "Boat to boat - carry the fight across the river.",
 		"intro": [
 			{"tag": H, "title": "March 1671  -  Saraighat", "body": "The Mughal fleet forced its way up the Brahmaputra to the narrows at Saraighat. The Ahom boats began to give way. Lachit was gravely ill - and had himself carried aboard a war boat and rowed straight at the enemy."},
-			{"tag": T, "title": "\"Let the king's men go where they please\"", "body": "The chronicles have him shouting that he would die doing his duty even if every man left him. The retreating boats turned around."},
+			{"tag": T, "title": "The commander on the river", "body": "The chronicles have him declaring that he would do his duty even if every man left him. The retreating boats turned around."},
 			{"tag": F, "title": "Level 5  -  Saraighat", "body": "The boat-to-boat fighting and the fleet captain are invented gameplay. The decks drift: time every leap."},
 		],
 		"outro": [

@@ -129,9 +129,10 @@ func _hero_card(h: String) -> Control:
 		var prev: String = Campaigns.HERO_ORDER[Campaigns.HERO_ORDER.find(h) - 1]
 		var lock := UiKit.label("Locked", 17, Color(0.8, 0.6, 0.5))
 		card.add_child(lock)
-		b = UiKit.button("Clear %s: Level 1" % Campaigns.HEROES[prev].name.split(" ")[-1], func(): pass, 262)
+		var need: String = Campaigns.LEVELS[Campaigns.HEROES[prev].levels[0]].title
+		b = UiKit.button("Clear \"%s\"" % need, func(): pass, 262)
 		b.disabled = true
-		b.add_theme_font_size_override("font_size", 16)
+		b.add_theme_font_size_override("font_size", 15)
 	card.add_child(b)
 	card.set_meta("button", b)
 	return card
@@ -180,9 +181,8 @@ func _on_levels(h: String) -> void:
 			st.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 			row.add_child(st)
 		v.add_child(row)
-		if first == null or (not b.disabled and Game.stars_for(id) == 0 and first.get_meta("done", true)):
-			first = b
-			b.set_meta("done", Game.stars_for(id) > 0)
+		if not b.disabled:
+			first = b   # focus the furthest level reached
 	v.add_child(UiKit.label("Each level is harder than the last. Clear one to open the next.", 15, Color(0.85, 0.8, 0.7)))
 	v.add_child(UiKit.button("Back", _on_heroes))
 	_modal(p)

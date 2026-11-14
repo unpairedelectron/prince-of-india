@@ -25,7 +25,7 @@ func _init() -> void:
 	level = Campaigns.LEVELS[mission_id]
 	hero_id = Campaigns.hero_of(mission_id)
 	theme = Campaigns.THEMES[level.theme]
-	tier = float(level.get("tier", 1)) + 0.25 * Campaigns.HERO_ORDER.find(hero_id)
+	tier = float(level.get("tier", 1)) + 0.15 * Campaigns.HERO_ORDER.find(hero_id)
 	built = LevelBuilder.new().build(level.segments, theme, int(level.get("tier", 1)), mission_id.hash())
 	title = "Level %d - %s" % [Campaigns.level_index(mission_id) + 1, level.title]
 	place_caption = level.get("caption", level.place.to_upper())

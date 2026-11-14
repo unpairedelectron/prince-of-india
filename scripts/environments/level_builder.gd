@@ -10,6 +10,7 @@ extends RefCounted
 ##   Horse gaps are 260 px (needs a gallop; cannot be crossed on foot).
 
 const DEPTH := 600.0
+const LANDING := 180.0   ## flat ground guaranteed after every pit, before any step or wall
 
 var C := {}
 var foes: Array = []       ## {type, pos}
@@ -87,6 +88,7 @@ func _segment(s: Array) -> void:
 			_x += minf(s[1], 150.0)
 			pits.append([_gx0, _x, _gy])
 			_gx0 = _x
+			_x += LANDING
 		"step":
 			_flush()
 			_gy += clampf(s[1], -90.0, 400.0)
@@ -133,6 +135,7 @@ func _segment(s: Array) -> void:
 			_x += (s[1] + 1) * 120.0
 			pits.append([_gx0, _x, _gy])
 			_gx0 = _x
+			_x += LANDING
 		"pillars":  # [_, count, gap]
 			_flush()
 			var g: float = minf(s[2], 140.0)
@@ -143,6 +146,7 @@ func _segment(s: Array) -> void:
 			_x += g
 			pits.append([_gx0, _x, _gy])
 			_gx0 = _x
+			_x += LANDING
 		"movers":   # [_, count, style] - rafts / boats / lifts over a pit
 			_flush()
 			for i in s[1]:
@@ -151,6 +155,7 @@ func _segment(s: Array) -> void:
 			_x += s[1] * 330.0 + 60.0
 			pits.append([_gx0, _x, _gy])
 			_gx0 = _x
+			_x += LANDING
 		"stones":   # [_, width]
 			var pts: Array = []
 			var px := 140.0
